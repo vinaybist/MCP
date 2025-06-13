@@ -14,11 +14,9 @@ Example:
 
 ![image](https://github.com/user-attachments/assets/eef21ead-18a9-45ab-b006-561cae4ec8a1)
 
-As a result, developers often need to create redundant implementations or wrappers for each SDK or platform. While the ecosystem is evolving rapidly, developers still have to write integration logic in proprietary ways. Each developer approaches external service integration differently—leading to fragmentation.
-
-For instance, connecting to a database is a common integration task, yet each implementation is isolated. One developer may prioritize secure connections, while another may overlook it. This lack of consistency creates a strong need for standardized interfaces to improve reusability and reduce effort duplication.
-
-To address this, Anthropic has introduced the Model Context Protocol (MCP) an open protocol that standardizes how applications provide context to LLMs. With MCP developers need not learn different schemas, no redundancy for each provider and can manage state and error handling.
+As a result, developers often need to create redundant implementations or wrappers for each SDK or platform. While the ecosystem is evolving rapidly, developers still have to write integration logic in proprietary ways. Each developer approaches external service integration differently.
+For instance, connecting to a database is a common integration task, yet each implementation can be different and isolated. One developer may prioritize secure connections, while another may overlook it. This lack of consistency creates a strong need for standardized interfaces to improve reusability and reduce effort duplication.
+To address this, Anthropic has introduced the _Model Context Protocol_ (MCP) an open protocol that standardizes how applications provide context to LLMs. With MCP developers need not learn different schemas, no redundancy for each provider and can manage state and error handling.
 
 ## MCP architecture
 MCP is a client server architecture. In this protocol there are 3 main actors - MCP Host, MCP Client and MCP Server.
@@ -64,7 +62,7 @@ SDL provides opportunity to address:
 - Proper authentication/authorization
 
 Protocol discovery feature Issue:
-```python
+```
 # Clients discover capabilities at runtime
 available_tools = await client.list_tools()
 available_resources = await client.list_resources()
