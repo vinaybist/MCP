@@ -25,8 +25,8 @@ To address this, Anthropic has introduced the _Model Context Protocol_ (MCP) an 
 MCP is a client server architecture. In this protocol there are 3 main actors - MCP Host, MCP Client and MCP Server.
 
 - **MCP Host** - System which holds the MCP clients or home for MCP Clients or where Client code runs. For example Desktop Computer or Mobile Phone 
-- **MCP Client** - The piece of software or application which invokes Tools, inserts prompts (user provided) and can query for Resources. For example Claude Desktop, Cursor or Windsurf.
-- **MCP Server** - The piece of software or API which abstracts Tools logic. It exposes Resources and Prompts (code provided) 
+- **MCP Client** - The piece of software or application which **invokes** [Tools, inserts prompts (user provided) and can query for Resources]. For example Claude Desktop, Cursor or Windsurf.
+- **MCP Server** - The piece of software or API which abstracts Tools logic. It **exposes** [ Tools, Resources and Prompts (code provided)] in a way so that it can be consumable by any client (i.e. Standardized)
 
 ![image](https://github.com/user-attachments/assets/d3dd90e6-e364-404f-b184-1dbf8c9bab24)
 -- Above diagram is referenced from Anthropic blog 
@@ -35,8 +35,8 @@ MCP is a client server architecture. In this protocol there are 3 main actors - 
 
 There are 5 main primitives of the protocol:
 - Prompt (User Controlled)
-- Resources (Application Control)
-- Tool Use (Model Controlled)
+- Resources (Data exposed to Applications in terms of Files(txt, images etc.), records or any artifact. This primitive is **Application Controlled**)
+- Tool Use (It is **Model Controlled** i.e. invoked by Model)
 - Sampling (Server to client communication)
 - Root (Server to client communication)
 - Notification (Server's push notification capability/notify client)
@@ -142,8 +142,11 @@ sandbox_config = {
 - Runtime monitoring: Monitor and log actual server behavior
 
 ## Resources 
+Data exposed to Applications in terms of Files(txt, images etc.), records or any artifact. This primitive is **Application Controlled**. For example for Claude Desktop it is like attaching a file to provide more context. Resources can be automatically attached by Model or appliction and popular use case is the RAG. It provides a rich interface for any AI client applications
 
 ## Tool Use
+The Tool is model controlled. The server exposed this to Clinet application and the Model on that will choose it to invoke
+For example creating/searching/updating a database table in Enterprise PostGreSQL DB.
 
 ## Sampling
 
@@ -175,7 +178,7 @@ file_server = MCPServer("filesystem")  # Process 3
 - Malicious MCP servers (specially made for DoS) can consume local resources and can result in full system failover
 - Adversaries may abuse inter-process communication (IPC) mechanisms for local code or command execution. (MITRE ATTACK)
    
-#### Recommendations
+#### Mitigation
 
 - Sandboxing (Docker) for isolation, apply resource limits so one server cannot interfere with the whole system of servers
 - Implement Access controls or apply principle of least privilege
@@ -204,10 +207,22 @@ docker_config = {
 ```
 
 - Secure communication channels
+_Note:_This will also can be present in the Tool Use section as well.
+MCP transport layer uses JSON-RPC 2.0 protocol onto 2 supported transport -
+1. STDIO (Standard I/O) : Use the process stdin/stdout streams for JSON-RPC messages 
+2. Serve-Sent Events (SSE): JSON-RPC Over HTTP
+
+Issue:
+Local STDIO is insecure (no encryption) and unauthenticated. No Integrity and impersonation clinet or server possible by any local process
+SSE - Dont use SSE. Use the streamable HTTP which will have one endpoint. Oauth 2.1 spec recommended however not all cases are supported (e.g Most LLM provider dont support API keys only). If Oauth supported then OAuth 2.1 security consideration must follow.
 
 ```
-example
+
 ```
+#### Mitigation
+<<<Use a centralize proxy instead of local process and protect each MCP server by OAuth 2.1. If MCP server interns do connect any other services that should be his scope of OAuth >>>
+Audit Logging
+
 
 ### Input Validation and Sanitization
 
