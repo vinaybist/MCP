@@ -2,7 +2,7 @@
 
 ## Introduction
 
-In a very short period, the action-oriented capabilities of LLMs (not just text-to-text generation) have been gaining momentum. Enterprises are rapidly adopting agentic capabilities to boost productivity and reduce costs. This shift began with the introduction of LLM function calling, where LLMs can invoke APIs—opening immense opportunities for enterprise use cases.
+In a very short period, the action-oriented capabilities of LLMs (not just text-to-text generation) have been gaining momentum. Enterprises are rapidly adopting agentic capabilities to boost productivity and reduce costs. This shift began with the introduction of LLM function calling, where LLMs can be actionable or invoke APIs is opening immense opportunities for enterprise use cases.
 
 Developers can now create AI agents using orchestration frameworks like LangChain and LlamaIndex, which offer standardized ways to integrate external services with LLMs. However, integration approaches vary significantly across platforms, especially when compared to OpenAI's function calling mechanism.
 
