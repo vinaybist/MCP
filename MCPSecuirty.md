@@ -153,6 +153,19 @@ Data exposed to Applications in terms of Files(txt, images etc.), records or any
 ## Tool Use
 The Tool is model controlled. The server exposed this to Clinet application and the Model on that will choose it to invoke
 For example creating/searching/updating a database table in Enterprise PostGreSQL DB.
+### Security Issue
+Many - Tool poisoining, Rg-pull
+### Mitigation
+- Trusted Registry
+- Prompt check
+- Protect the servers by using Oauth 2.1 and make sure on the folowwing :
+- Use HTTPS for all OAuth and API endpoints
+    - Store secrets securely (best to use vault in enterprise)
+    - Implement rate limiting to prevent service failover (best behind API gateway)
+    - Rotate secrets (best to use vault in enterprise to handle basd on the Org policy automatically)
+    - Use short-lived access tokens (For most sensitive use cases use DPoP)
+    - Validate all inputs to prevent injection attacks (Classical way to prevent unexpected threats)
+    - Keep your OAuth libraries updated
 
 ## Sampling
 Server acts as a client. Allows a server to request completions from a client, giving the user application full control over security, privacy and cost. Its like Client can decide which list of model he wants to choose, Allow/deny etc. 
