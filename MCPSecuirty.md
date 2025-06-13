@@ -2,7 +2,7 @@
 
 ## Introduction
 
-In a very short period, the action-oriented capabilities of LLMs (not just text-to-text generation) have been gaining momentum. Enterprises are rapidly adopting agentic capabilities to boost productivity and reduce costs. This shift began with the introduction of LLM function calling, where LLMs can be actionable or invoke APIs, opening immense opportunities for enterprise use cases.
+In a very short period, the action-oriented capabilities of LLMs (not just text-to-text generation) have been gaining momentum. Enterprises are rapidly adopting agentic capabilities to boost productivity and reduce costs. This shift began with the introduction of LLM function calling, where LLMs can be actionable (Agents) or invoke APIs, opening immense opportunities for enterprise use cases.
 
 Developers can now create AI agents using orchestration frameworks like LangChain and LlamaIndex, which offer standardized ways to integrate external services with LLMs. However, integration approaches vary significantly across platforms, especially when compared to OpenAI's function calling mechanism.
 
@@ -19,6 +19,10 @@ As a result, developers often need to create redundant implementations or wrappe
 For instance, connecting to a database is a common integration task, yet each implementation can be different and isolated. One developer may prioritize secure connections, while another may overlook it. This lack of consistency creates a strong need for standardized interfaces to improve reusability and reduce effort duplication.
 
 To address this, Anthropic has introduced the _Model Context Protocol_ (MCP) an open protocol that standardizes how applications provide context to LLMs. With MCP, developers need not learn different schemas, no redundancy for each provider and can manage state and error handling.
+"**MCP will be the foundational protocol for agents**"
+
+
+
 
 ## MCP architecture
 
@@ -144,15 +148,31 @@ sandbox_config = {
 ## Resources 
 Data exposed to Applications in terms of Files(txt, images etc.), records or any artifact. This primitive is **Application Controlled**. For example for Claude Desktop it is like attaching a file to provide more context. Resources can be automatically attached by Model or appliction and popular use case is the RAG. It provides a rich interface for any AI client applications
 
+
+
 ## Tool Use
 The Tool is model controlled. The server exposed this to Clinet application and the Model on that will choose it to invoke
 For example creating/searching/updating a database table in Enterprise PostGreSQL DB.
 
 ## Sampling
+Server acts as a client. Allows a server to request completions from a client, giving the user application full control over security, privacy and cost. Its like Client can decide which list of model he wants to choose, Allow/deny etc. 
+Sampling parametrs : Model preference and hints, System prompts, Tempertaure & Max Tokens. One example is Server have the capability to summarize (in a way want to invoke LLM Model)
 
 ## Root
 
-## Notification
+## Resource Notification
+Client can subscribe to a resource for notification and anytime that resource gets update by server, the server can notify client. Its like Server acting as client in this use case.
+
+
+## Composability
+A MCP client can be a server and vice versa. A MCP server can intern call another service to fullfill the need. 
+### Security Issue
+How the communication handles. Client may autorize the immediate MCP serevr howevere no control on the next server in the chain. 
+
+
+
+
+
 
 Apart from primitives we also need to see threats from architectural perspective. 
 
