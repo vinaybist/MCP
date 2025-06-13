@@ -70,9 +70,9 @@ available_tools = await client.list_tools()
 available_resources = await client.list_resources()
 
 # Security questions:
-# - Can malicious servers expose dangerous capabilities?
-# - How do we validate tool/resource safety?
-# - What if a server lies about its capabilities?
+- Can malicious servers expose dangerous capabilities?
+- How do we validate tool/resource safety?
+- What if a server lies about its capabilities?
 ```
 
 SDL addresses this through:
