@@ -211,4 +211,4 @@ Deployment Phase
 - Incident response procedures
 - Security update mechanisms
 
-SDL is critical for MCP deployment because MCP shifts the LLMs' stateless interaction of services to stateful, making it bi-directional and dynamic. It provides flexibility but at the same time makes the attack surface wider.
+SDL is critical for MCP deployment because MCP shifts the LLMs' stateless interaction with services in a stateful, bi-directional and dynamic. It provides flexibility but at the same time makes the attack surface wider.
