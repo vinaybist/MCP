@@ -35,21 +35,37 @@ There are 5 main primitive of the protocol:
 - Notification (Server's push notification capability/notify client)
 
 ## Why SDL is key for MCP security
+Our approach is to go with the primitives and try to find the potiential threats and see how SDL is useful to mitigate those.
 
-### MCP servers run as separate processes
+## Prompt
+
+## Resources 
+
+## Tool Use
+
+## Sampling
+
+## Root
+
+## Notification
+
+Apart from primitive we also need to see threats from architectural prespective. 
+
+### MCP servers echosystem 
+#### LOCAL SERVER : Each MCP server run as separate processes
 Each server has its own security context
 ```python
 weather_server = MCPServer("weather")  # Process 1
 db_server = MCPServer("database")      # Process 2
 file_server = MCPServer("filesystem")  # Process 3
 ```
-
-Each process needs:
-- Proper sandboxing
-- Resource limits
-- Access controls
+#### What could be the issue here
+- Each process should not able to interfere in other process therefore proper sandboxing is required.
+#### Recommendations
+- Docker for isolation
+- Apply Resource limits so one server cannot interfere the whole system of servers
+- Implement Access controls
 - Secure communication channels
-
 SDL ensures each server process is hardened against:
 - Resource exhaustion attacks
 - Privilege escalation
@@ -77,21 +93,20 @@ available_resources = await client.list_resources()
 ```
 
 SDL addresses this through:
-- Capability validation frameworks
+- Trusted Registry for all MCP servers
 - Allowlist/blocklist mechanisms
 - Runtime security monitoring
-- Secure capability attestation
 
 Communication Threats:
 ```python
 # Server can push notifications to client
 await server.send_notification({
     "method": "alert",
-    "params": {"message": "System compromised!"}
+    "params": {"message": "Task Done!"}
 })
 
 # Security risks:
-# - Malicious notifications
+# - Malicious notifications 
 # - Denial of service attacks
 # - Information disclosure
 # - Social engineering attacks
