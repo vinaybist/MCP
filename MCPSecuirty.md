@@ -20,6 +20,9 @@ To address this, Anthropic has introduced the _Model Context Protocol_ (MCP) an 
 
 ## MCP architecture
 MCP is a client server architecture. In this protocol there are 3 main actors - MCP Host, MCP Client and MCP Server.
+MCP Host - System which holds the MCP clients or home for MCP Clients or where Client code runs. For example Desktop Computer or Mobile Phone 
+MCP Client - The piece of software or application which invokes Tools, insert prompts (user provided) and can query for Resources. For example Claude Desktop, Cursor or Windsurf.
+MCP Server - The piece of software or API which abstract Tools logic. It exposes Resources and Prompts (code provided) 
 
 ![image](https://github.com/user-attachments/assets/d3dd90e6-e364-404f-b184-1dbf8c9bab24)
 -- Above diagram is referenced from Anthropic blog 
@@ -61,18 +64,83 @@ file_server = MCPServer("filesystem")  # Process 3
 ```
 #### What could be the issue here
 - Each process should not able to interfere in other process therefore proper sandboxing is required.
+- Think, that local server is running on your local and therefore in theory all the assets/resources is reachable to that. Think you have some sensitive file (secret keys, cookies, personal docs etc.) on your system and that is available to access by local server. If local server code compromise then your whole system is available to model which can be compromise by some prompt injections
+- Privilege Escalation: Local MCP server run as user processes and therefore inherit user privileges
+- Local MCP servers might open network ports which may expose the system itself
+- If local coomunication is not secure then MITM may occur
+- Malicious MCP servers (specially made for DoS) can consume local resources and can resulted into full system failover
+- Adversaries may abuse inter-process communication (IPC) mechanisms for local code or command execution. (MITRE ATTACK)
+   
 #### Recommendations
 - Docker for isolation
 - Apply Resource limits so one server cannot interfere the whole system of servers
-- Implement Access controls
-- Secure communication channels
-SDL ensures each server process is hardened against:
-- Resource exhaustion attacks
-- Privilege escalation
-- Inter-process communication vulnerabilities
-- Memory corruption issues
+- Implement Access controls or apply principle of least privilege
+  ```
+  # Run MCP servers in containers or sandboxes
+docker_config = {
+    "image": "mcp-server:latest",
+    "volumes": ["/not-a-root-directory:/data:ro"],  # Read-only mount
+    "network": "none",  # No network access
+    "user": "1000:1000"  # Non-root user
+}
+  ```
+- Principle of Least Privilege
+    ```
+{
+  "mcpServers": {
+    "filesystem": {
+      "command": "filesystem-server",
+      "args": ["--path=/project", "--readonly"]  // Restricted access
+    }
+  }
+}
+    ```
+Secure communication channels
 
-There are multiple trust boundaries which need to be considered:
+```
+example
+```
+
+### Input Validation and Sanitization
+```
+def validate_resource_uri(uri: str) -> bool:
+    # Validate URI format
+    # Check against allowlist
+    # Prevent path traversal
+    # Sanitize input parameters
+    return is_safe_uri(uri)
+```
+
+#### Monitering and logging
+
+# Monitering and logging
+
+```
+
+Comprehensive logging of MCP activities
+audit_log = {
+    "timestamp": "2025-01-01<TIME>>",
+    "server": "filesystem",
+    "action": "read_file",
+    "resource": "/project/main.py",
+    "result": "success"
+}
+```
+
+#### Supply Chain and Third-Party Risks
+- Malicious server
+- Dependency issue 
+```
+MCP servers often have complex dependency chains
+# package.json or requirements.txt might include:
+dependencies = [
+    "vulnerable-library@1.0",  # Known CVE
+    "package001",      # Malicious package
+    "unmaintained-dependency"     # No security updates
+]
+```
+
+#### There are multiple trust boundaries which need to be considered:
 <<TO-DO>>
 
 SDL provides opportunity to address:
