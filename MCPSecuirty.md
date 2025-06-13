@@ -84,8 +84,10 @@ docker_config = {
     "user": "1000:1000"  # Non-root user
 }
   ```
+
+
+  ```
 - Principle of Least Privilege
-    ```
 {
   "mcpServers": {
     "filesystem": {
