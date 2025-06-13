@@ -7,7 +7,6 @@ In a very short period, the action-oriented capabilities of LLMs (not just text-
 Developers can now create AI agents using orchestration frameworks like LangChain and LlamaIndex, which offer standardized ways to integrate external services with LLMs. However, integration approaches vary significantly across platforms, especially when compared to OpenAI's function calling mechanism.
 
 Example:
-- In ChatGPT, functions/tools are declared using JSON schema and automatically exposed.
 - In the OpenAI API, developers must manually define tools with strict schemas and handle input/output formatting and the same is true with Gemini or Anthropic.
 - In LangChain, LangGraph, and other frameworks, additional abstractions may conflict with OpenAI's native expectations.
 
