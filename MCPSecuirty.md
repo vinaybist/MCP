@@ -197,10 +197,8 @@ example
 ### Input Validation and Sanitization
 ```python
 def validate_resource_uri(uri: str) -> bool:
-    # Validate URI format
-    # Check against allowlist
-    # Prevent path traversal
-    # Sanitize input parameters
+    # Validate URI format, may be try to check against allowlist
+    # Use classic SDL secure guidelines like prevent path traversal, sanitize input parameters
     return is_safe_uri(uri)
 ```
 
