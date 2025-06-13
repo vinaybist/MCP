@@ -32,6 +32,7 @@ There are 5 main primitive of the protocol:
 - Tool Use (Model Controled)
 - Sampling (Server to client communication)
 - Root (Server to client communication)
+- Notification (Server's push notification capability/notify client)
 
 ## Why SDL is key for MCP security
 
