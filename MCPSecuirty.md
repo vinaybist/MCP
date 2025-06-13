@@ -236,16 +236,6 @@ file_server = MCPServer("filesystem")     # Process 3
 
 There are multiple trust boundaries which need to be considered:
 
-```
-AI Client (High Trust)
-    ↕️ JSON-RPC Protocol
-Transport Layer (Medium Trust)
-    ↕️ Process Boundaries
-MCP Servers (Variable Trust)
-    ↕️ Network/File/DB Access
-External Systems (Low Trust)
-```
-
 **SDL provides opportunities to address:**
 - Secure communication protocols
 - Input validation at each boundary
