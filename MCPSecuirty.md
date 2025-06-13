@@ -2,7 +2,7 @@
 
 ## Introduction
 
-In a very short period, the action-oriented capabilities of LLMs (not just text-to-text generation) have been gaining momentum. Enterprises are rapidly adopting agentic capabilities to boost productivity and reduce costs. This shift began with the introduction of LLM function calling, where LLMs can be actionable or invoke APIs is opening immense opportunities for enterprise use cases.
+In a very short period, the action-oriented capabilities of LLMs (not just text-to-text generation) have been gaining momentum. Enterprises are rapidly adopting agentic capabilities to boost productivity and reduce costs. This shift began with the introduction of LLM function calling, where LLMs can be actionable or invoke APIs, opening immense opportunities for enterprise use cases.
 
 Developers can now create AI agents using orchestration frameworks like LangChain and LlamaIndex, which offer standardized ways to integrate external services with LLMs. However, integration approaches vary significantly across platforms, especially when compared to OpenAI's function calling mechanism.
 
@@ -15,30 +15,35 @@ Example:
 ![image](https://github.com/user-attachments/assets/eef21ead-18a9-45ab-b006-561cae4ec8a1)
 
 As a result, developers often need to create redundant implementations or wrappers for each SDK or platform. While the ecosystem is evolving rapidly, developers still have to write integration logic in proprietary ways. Each developer approaches external service integration differently.
+
 For instance, connecting to a database is a common integration task, yet each implementation can be different and isolated. One developer may prioritize secure connections, while another may overlook it. This lack of consistency creates a strong need for standardized interfaces to improve reusability and reduce effort duplication.
-To address this, Anthropic has introduced the _Model Context Protocol_ (MCP) an open protocol that standardizes how applications provide context to LLMs. With MCP developers need not learn different schemas, no redundancy for each provider and can manage state and error handling.
+
+To address this, Anthropic has introduced the _Model Context Protocol_ (MCP) an open protocol that standardizes how applications provide context to LLMs. With MCP, developers need not learn different schemas, no redundancy for each provider and can manage state and error handling.
 
 ## MCP architecture
+
 MCP is a client server architecture. In this protocol there are 3 main actors - MCP Host, MCP Client and MCP Server.
-MCP Host - System which holds the MCP clients or home for MCP Clients or where Client code runs. For example Desktop Computer or Mobile Phone 
-MCP Client - The piece of software or application which invokes Tools, insert prompts (user provided) and can query for Resources. For example Claude Desktop, Cursor or Windsurf.
-MCP Server - The piece of software or API which abstract Tools logic. It exposes Resources and Prompts (code provided) 
+
+- **MCP Host** - System which holds the MCP clients or home for MCP Clients or where Client code runs. For example Desktop Computer or Mobile Phone 
+- **MCP Client** - The piece of software or application which invokes Tools, inserts prompts (user provided) and can query for Resources. For example Claude Desktop, Cursor or Windsurf.
+- **MCP Server** - The piece of software or API which abstracts Tools logic. It exposes Resources and Prompts (code provided) 
 
 ![image](https://github.com/user-attachments/assets/d3dd90e6-e364-404f-b184-1dbf8c9bab24)
 -- Above diagram is referenced from Anthropic blog 
 
-**Note:** The real power comes when you have remote MCP server. This empowers many use cases and creates a MCP servers economy. We will be agumenting this above with a remote server (lets sat MCP Server D)  as well to dice it for all possible potiential threats.
+**Note:** The real power comes when you have remote MCP server. This empowers many use cases and creates an MCP servers economy. We will be augmenting this above with a remote server (let's say MCP Server D) as well to slice it for all possible potential threats.
 
-There are 5 main primitive of the protocol:
+There are 5 main primitives of the protocol:
 - Prompt (User Controlled)
 - Resources (Application Control)
-- Tool Use (Model Controled)
+- Tool Use (Model Controlled)
 - Sampling (Server to client communication)
 - Root (Server to client communication)
 - Notification (Server's push notification capability/notify client)
 
 ## Why SDL is key for MCP security
-Our approach is to go with the primitives and try to find the potiential threats and see how SDL is useful to mitigate those.
+
+Our approach is to go with the primitives and try to find the potential threats and see how SDL is useful to mitigate those.
 
 ## Prompt
 
@@ -52,41 +57,44 @@ Our approach is to go with the primitives and try to find the potiential threats
 
 ## Notification
 
-Apart from primitive we also need to see threats from architectural prespective. 
+Apart from primitives we also need to see threats from architectural perspective. 
 
-### MCP servers echosystem 
-#### LOCAL SERVER : Each MCP server run as separate processes
+### MCP servers ecosystem 
+
+#### LOCAL SERVER : Each MCP server runs as separate processes
 Each server has its own security context
 ```python
 weather_server = MCPServer("weather")  # Process 1
 db_server = MCPServer("database")      # Process 2
 file_server = MCPServer("filesystem")  # Process 3
 ```
+
 #### What could be the issue here
-- Each process should not able to interfere in other process therefore proper sandboxing is required.
-- Think, that local server is running on your local and therefore in theory all the assets/resources is reachable to that. Think you have some sensitive file (secret keys, cookies, personal docs etc.) on your system and that is available to access by local server. If local server code compromise then your whole system is available to model which can be compromise by some prompt injections
-- Privilege Escalation: Local MCP server run as user processes and therefore inherit user privileges
+- Each process should not be able to interfere in other processes, therefore proper sandboxing is required.
+- Think that local server is running on your local and therefore in theory all the assets/resources are reachable to that. Think you have some sensitive files (secret keys, cookies, personal docs etc.) on your system and that is available to access by local server. If local server code is compromised then your whole system is available to model which can be compromised by some prompt injections
+- Privilege Escalation: Local MCP servers run as user processes and therefore inherit user privileges
 - Local MCP servers might open network ports which may expose the system itself
-- If local coomunication is not secure then MITM may occur
-- Malicious MCP servers (specially made for DoS) can consume local resources and can resulted into full system failover
+- If local communication is not secure then MITM may occur
+- Malicious MCP servers (specially made for DoS) can consume local resources and can result in full system failover
 - Adversaries may abuse inter-process communication (IPC) mechanisms for local code or command execution. (MITRE ATTACK)
    
 #### Recommendations
 - Docker for isolation
-- Apply Resource limits so one server cannot interfere the whole system of servers
+- Apply Resource limits so one server cannot interfere with the whole system of servers
 - Implement Access controls or apply principle of least privilege
 
-  ```
-Run MCP servers in containers or sandboxes
+```python
+# Run MCP servers in containers or sandboxes
 docker_config = {
     "image": "mcp-server:latest",
     "volumes": ["/not-a-root-directory:/data:ro"],  # Read-only mount
     "network": "none",  # No network access
     "user": "1000:1000"  # Non-root user
 }
-  ```
+```
 
 - Principle of Least Privilege
+```json
 {
   "mcpServers": {
     "filesystem": {
@@ -95,15 +103,16 @@ docker_config = {
     }
   }
 }
-    ```
-Secure communication channels
+```
+
+- Secure communication channels
 
 ```
 example
 ```
 
 ### Input Validation and Sanitization
-```
+```python
 def validate_resource_uri(uri: str) -> bool:
     # Validate URI format
     # Check against allowlist
@@ -112,15 +121,12 @@ def validate_resource_uri(uri: str) -> bool:
     return is_safe_uri(uri)
 ```
 
-#### Monitering and logging
+#### Monitoring and logging
 
-# Monitering and logging
-
-```
-
-Comprehensive logging of MCP activities
+```python
+# Comprehensive logging of MCP activities
 audit_log = {
-    "timestamp": "2025-01-01<TIME>>",
+    "timestamp": "2025-01-01<TIME>",
     "server": "filesystem",
     "action": "read_file",
     "resource": "/project/main.py",
@@ -131,8 +137,8 @@ audit_log = {
 #### Supply Chain and Third-Party Risks
 - Malicious server
 - Dependency issue 
-```
-MCP servers often have complex dependency chains
+```python
+# MCP servers often have complex dependency chains
 # package.json or requirements.txt might include:
 dependencies = [
     "vulnerable-library@1.0",  # Known CVE
@@ -150,15 +156,15 @@ SDL provides opportunity to address:
 - Proper authentication/authorization
 
 Protocol discovery feature Issue:
-```
+```python
 # Clients discover capabilities at runtime
 available_tools = await client.list_tools()
 available_resources = await client.list_resources()
 
 # Security questions:
-- Can malicious servers expose dangerous capabilities?
-- How do we validate tool/resource safety?
-- What if a server lies about its capabilities?
+# - Can malicious servers expose dangerous capabilities?
+# - How do we validate tool/resource safety?
+# - What if a server lies about its capabilities?
 ```
 
 SDL addresses this through:
@@ -189,6 +195,7 @@ SDL mitigates these through:
 
 Persistent State Security:
 MCP servers maintain state, creating new attack vectors:
+
 Security concerns:
 - State corruption attacks
 - Session hijacking
@@ -224,6 +231,7 @@ transports = {
     "ipc": "Inter-process communication"
 }
 ```
+
 SDL ensures:
 - Transport-specific security controls
 - Encryption in transit
@@ -255,29 +263,30 @@ SDL addresses this through:
 Compliance and Auditing
 Requires comprehensive security auditing
 
-# SDL Implementation Framework for MCP
-Design Phase
+## SDL Implementation Framework for MCP
+
+### Design Phase
 - Threat modeling for each MCP component
 - Security architecture review
 - Trust boundary analysis
 - Attack surface assessment
 
-Implementation Phase
+### Implementation Phase
 - Secure coding standards
 - Input validation frameworks
 - Error handling protocols
 - Logging and monitoring
 
-Testing Phase
+### Testing Phase
 - Penetration testing
 - Fuzzing of JSON-RPC endpoints
 - Process isolation validation
 - Resource access testing
 
-Deployment Phase
+### Deployment Phase
 - Secure configuration management
 - Runtime security monitoring
 - Incident response procedures
 - Security update mechanisms
 
-SDL is critical for MCP deployment because MCP shifts the LLMs' stateless interaction with services in a stateful, bi-directional and dynamic. It provides flexibility but at the same time makes the attack surface wider.
+SDL is critical for MCP deployment because MCP shifts the LLMs' stateless interaction with services to stateful, bi-directional and dynamic. It provides flexibility but at the same time makes the attack surface wider.
