@@ -49,12 +49,14 @@ Our approach is to go with the primitives and try to find the potential threats 
 The source of the prompts can be User and Server itself. In other words Prompts can be rovided and controlled by user but for great experience it can also be written in server itself.
 ### Example:
 These are prompts that users input directly into the MCP client (like Claude Desktop):
-#### User types in the client interface
+
 ```
+# User types in the client interface
 user_prompt = "Analyze the sales data in my database and create a summary report"
 ```
 These are pre-written prompt templates that MCP servers expose as reusable prompts:
 #### Example: MCP server defines prompt templates
+
 ```
 class DataAnalysisMCPServer(MCPServer):
     async def list_prompts(self) -> list[Prompt]:
@@ -82,11 +84,11 @@ class DataAnalysisMCPServer(MCPServer):
       ----
       ----
 
--Client discovers available prompts from server
+#Client discovers available prompts from server
 available_prompts = await client.list_prompts()
 # Returns: ["analyze_sales_data", "generate_financial_report", ...]
 
--User can invoke server-provided prompts with parameters
+#User can invoke server-provided prompts with parameters
 prompt_result = await client.get_prompt(
     "analyze_sales_data",
     arguments={
@@ -117,8 +119,9 @@ This dual nature of prompts creates important security considerations. Client ne
 - Implement a Trusted Server Registry or a process which will vett all the servers for use (Like Docker Registry Concept)
 - Input validation layer or content filtering to check the prompt before it reaches to model
 - Secure by default : Sandbox to restrict server capabilities
+
 ```
-  # Restrict server capabilities
+# Restrict server capabilities
 sandbox_config = {
     "file_access": ["/allowed/directory"],
     "network_access": False,
@@ -126,7 +129,9 @@ sandbox_config = {
     "resource_limits": {"memory": "100MB", "cpu": "10%"}
 }
 ```
+
 - Run time monitoring: Monitor and logs actual server behavior
+
 
 ## Resources 
 
