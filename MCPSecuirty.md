@@ -23,6 +23,7 @@ MCP is a client server architecture. In this protocol there are 3 main actors - 
 
 ![image](https://github.com/user-attachments/assets/d3dd90e6-e364-404f-b184-1dbf8c9bab24)
 -- Above diagram is referenced from Anthropic blog 
+**Note:** The real power comes when you have MCP server as remote as well. This empowers many use cases and creates a MCP servers economy. We will be agumenting this above with a remote server as well to dice it for all possible potiential threats.
 
 There are 5 main primitive of the protocol:
 - Prompt (User Controlled)
