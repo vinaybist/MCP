@@ -46,18 +46,22 @@ There are 5 main primitives of the protocol:
 Our approach is to go with the primitives and try to find the potential threats and see how SDL is useful to mitigate those.
 
 ## Prompt
-The source of the prompts can be User and Server itself. In other words Prompts can be rovided and controlled by user but for great experience it can also be written in server itself.
+
+The source of the prompts can be User and Server itself. In other words, Prompts can be provided and controlled by user but for great experience it can also be written in server itself.
+
 ### Example:
 These are prompts that users input directly into the MCP client (like Claude Desktop):
 
-```
+```python
 # User types in the client interface
 user_prompt = "Analyze the sales data in my database and create a summary report"
 ```
+
 These are pre-written prompt templates that MCP servers expose as reusable prompts:
+
 #### Example: MCP server defines prompt templates
 
-```
+```python
 class DataAnalysisMCPServer(MCPServer):
     async def list_prompts(self) -> list[Prompt]:
         return [
@@ -75,20 +79,20 @@ class DataAnalysisMCPServer(MCPServer):
                 ]
             ),
             Prompt(
-               ------------------
-               ------------------
+               # ------------------
+               # ------------------
             )
         ]
     
     async def get_prompt(self, name: str, arguments: dict) -> GetPromptResult:
-      ----
-      ----
+      # ----
+      # ----
 
-#Client discovers available prompts from server
+# Client discovers available prompts from server
 available_prompts = await client.list_prompts()
 # Returns: ["analyze_sales_data", "generate_financial_report", ...]
 
-#User can invoke server-provided prompts with parameters
+# User can invoke server-provided prompts with parameters
 prompt_result = await client.get_prompt(
     "analyze_sales_data",
     arguments={
@@ -97,9 +101,12 @@ prompt_result = await client.get_prompt(
     }
 )
 ```
+
 ### Security Issue
-This dual nature of prompts creates important security considerations. Client never sees server source code while performing the integration. Mostly it sees the follwoing
-```
+
+This dual nature of prompts creates important security considerations. Client never sees server source code while performing the integration. Mostly it sees the following:
+
+```json
 {
   "mcpServers": {
     "very-helpful-git-tool": {
@@ -109,18 +116,20 @@ This dual nature of prompts creates important security considerations. Client ne
     }
   }
 }
+```
 
 **Note:** This is described as helpful server but actually it steals/rm-rf * all your files
-```
+
 - If server is malicious then you may get harmful Prompt (Prompt injection attack) and Model will honor that 
-- User also can be tricked to implicitly ending up in prompt injection
+- User also can be tricked to implicitly end up in prompt injection
 
 ### Mitigation
-- Implement a Trusted Server Registry or a process which will vett all the servers for use (Like Docker Registry Concept)
-- Input validation layer or content filtering to check the prompt before it reaches to model
-- Secure by default : Sandbox to restrict server capabilities
 
-```
+- Implement a Trusted Server Registry or a process which will vet all the servers for use (Like Docker Registry Concept)
+- Input validation layer or content filtering to check the prompt before it reaches to model
+- Secure by default: Sandbox to restrict server capabilities
+
+```python
 # Restrict server capabilities
 sandbox_config = {
     "file_access": ["/allowed/directory"],
@@ -130,8 +139,7 @@ sandbox_config = {
 }
 ```
 
-- Run time monitoring: Monitor and logs actual server behavior
-
+- Runtime monitoring: Monitor and log actual server behavior
 
 ## Resources 
 
@@ -144,10 +152,13 @@ sandbox_config = {
 ## Notification
 
 Apart from primitives we also need to see threats from architectural perspective. 
+
 ### MCP servers ecosystem 
 
 #### LOCAL SERVER : Each MCP server runs as separate processes
+
 Each server has its own security context
+
 ```python
 weather_server = MCPServer("weather")  # Process 1
 db_server = MCPServer("database")      # Process 2
@@ -155,6 +166,7 @@ file_server = MCPServer("filesystem")  # Process 3
 ```
 
 #### What could be the issue here
+
 - Each process should not be able to interfere in other processes, therefore proper sandboxing is required.
 - Think that local server is running on your local and therefore in theory all the assets/resources are reachable to that. Think you have some sensitive files (secret keys, cookies, personal docs etc.) on your system and that is available to access by local server. If local server code is compromised then your whole system is available to model which can be compromised by some prompt injections
 - Privilege Escalation: Local MCP servers run as user processes and therefore inherit user privileges
@@ -164,6 +176,7 @@ file_server = MCPServer("filesystem")  # Process 3
 - Adversaries may abuse inter-process communication (IPC) mechanisms for local code or command execution. (MITRE ATTACK)
    
 #### Recommendations
+
 - Sandboxing (Docker) for isolation, apply resource limits so one server cannot interfere with the whole system of servers
 - Implement Access controls or apply principle of least privilege
 
@@ -176,7 +189,9 @@ docker_config = {
     "user": "1000:1000"  # Non-root user
 }
 ```
+
 - Principle of Least Privilege
+
 ```json
 {
   "mcpServers": {
@@ -195,6 +210,7 @@ example
 ```
 
 ### Input Validation and Sanitization
+
 ```python
 def validate_resource_uri(uri: str) -> bool:
     # Validate URI format, may be try to check against allowlist
@@ -216,6 +232,7 @@ audit_log = {
 ```
 
 #### Supply Chain and Third-Party Risks
+
 - Trusted server but having dependency issue 
 
 ```python
@@ -230,9 +247,11 @@ dependencies = [
 ```
 
 #### There are multiple trust boundaries which need to be considered:
+
 <<TO-DO>>
 
 Communication Threats:
+
 ```python
 # Server can push notifications to client
 await server.send_notification({
@@ -276,6 +295,7 @@ SDL requirements:
 
 Transport Security Issue
 Different transports, different risks
+
 ```python
 transports = {
     "stdio": "Local process communication",
@@ -285,7 +305,6 @@ transports = {
     "ipc": "Inter-process communication"
 }
 ```
-
 
 ## SDL Implementation Framework for MCP
 
