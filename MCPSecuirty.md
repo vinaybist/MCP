@@ -21,10 +21,18 @@ For instance, connecting to a database is a common integration task, yet each im
 
 To address this, Anthropic has introduced the Model Context Protocol (MCP) an open protocol that standardizes how applications provide context to LLMs. With MCP developers need not learn different schemas, no redundancy for each provider and can manage state and error handling.
 
-## What is MCP and its architecture
+## MCP architecture
+MCP is a client server architecture. In this protocol there are 3 main actors - MCP Host, MCP Client and MCP Server.
 
 ![image](https://github.com/user-attachments/assets/d3dd90e6-e364-404f-b184-1dbf8c9bab24)
--- Reference Anthropic blog 
+-- Above diagram is referenced from Anthropic blog 
+
+There are 5 main primitive of the protocol:
+- Prompt (User Controlled)
+- Resources (Application Control)
+- Tool Use (Model Controled)
+- Sampling (Server to client communication)
+- Root (Server to client communication)
 
 ## Why SDL is key for MCP security
 
