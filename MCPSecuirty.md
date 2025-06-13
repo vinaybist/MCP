@@ -248,8 +248,6 @@ dependencies = [
 
 #### There are multiple trust boundaries which need to be considered:
 
-<<TO-DO>>
-
 Communication Threats:
 
 ```python
@@ -287,12 +285,6 @@ resources = [
 ]
 ```
 
-SDL requirements:
-- Principle of least privilege
-- Resource access auditing
-- URI validation and sanitization
-- Runtime permission checks
-
 Transport Security Issue
 Different transports, different risks
 
@@ -315,13 +307,12 @@ transports = {
 - Attack surface assessment
 
 ### Implementation Phase
-- Secure coding standards
-- Input validation frameworks
-- Error handling protocols
+- Follow Secure coding standards
+- Always implement a Input validation layer
 - Logging and monitoring
 
 ### Testing Phase
-- Penetration testing
+- Pen testing
 - Fuzzing of JSON-RPC endpoints
 - Process isolation validation
 - Resource access testing
