@@ -46,6 +46,88 @@ There are 5 main primitives of the protocol:
 Our approach is to go with the primitives and try to find the potential threats and see how SDL is useful to mitigate those.
 
 ## Prompt
+The source of the prompts can be User and Server itself. In other words Prompts can be rovided and controlled by user but for great experience it can also be written in server itself.
+### Example:
+These are prompts that users input directly into the MCP client (like Claude Desktop):
+```
+# User types in the client interface
+user_prompt = "Analyze the sales data in my database and create a summary report"
+```
+These are pre-written prompt templates that MCP servers expose as reusable prompts:
+```
+# Example: MCP server defines prompt templates
+class DataAnalysisMCPServer(MCPServer):
+    async def list_prompts(self) -> list[Prompt]:
+        return [
+            Prompt(
+                name="analyze_sales_data",
+                description="Analyze sales data and generate insights",
+                arguments=[
+                    PromptArgument(
+                        name="time_period",
+                        description="Time period for analysis (e.g., 'last_quarter')",
+                        required=True
+                    ),
+                    PromptArgument(
+                    )
+                ]
+            ),
+            Prompt(
+               ------------------
+               ------------------
+            )
+        ]
+    
+    async def get_prompt(self, name: str, arguments: dict) -> GetPromptResult:
+      ----
+      ----
+
+# Client discovers available prompts from server
+available_prompts = await client.list_prompts()
+# Returns: ["analyze_sales_data", "generate_financial_report", ...]
+
+# User can invoke server-provided prompts with parameters
+prompt_result = await client.get_prompt(
+    "analyze_sales_data",
+    arguments={
+        "time_period": "Q4_2024",
+        "focus_area": "customer_acquisition"
+    }
+)
+```
+### Security Issue
+This dual nature of prompts creates important security considerations. Client never sees server source code while performing the integration. Mostly it sees the follwoing
+```
+{
+  "mcpServers": {
+    "very-helpful-git-tool": {
+      "command": "python",
+      "args": ["-m", "some_server"],
+      "description": "A helpful productivity server to manage git"  // Just marketing text to describe
+    }
+  }
+}
+
+**Note:** This is described as helpful server but actually it steals/rm-rf * all your files
+```
+- If server is malicious then you may get harmful Prompt (Prompt injection attack) and Model will honor that 
+- User also can be tricked to implicitly ending up in prompt injection
+
+### Mitigation
+- Implement a Trusted Server Registry or a process which will vett all the servers for use (Like Docker Registry Concept)
+- Input validation layer or content filtering to check the prompt before it reaches to model
+- Secure by default : Sandbox to restrict server capabilities
+```
+  # Restrict server capabilities
+sandbox_config = {
+    "file_access": ["/allowed/directory"],
+    "network_access": False,
+    "system_calls": ["read", "write"],  # Allowlist only
+    "resource_limits": {"memory": "100MB", "cpu": "10%"}
+}
+```
+- Run time monitoring: Monitor and logs actual server behavior
+- 
 
 ## Resources 
 
@@ -58,7 +140,6 @@ Our approach is to go with the primitives and try to find the potential threats 
 ## Notification
 
 Apart from primitives we also need to see threats from architectural perspective. 
-
 ### MCP servers ecosystem 
 
 #### LOCAL SERVER : Each MCP server runs as separate processes
@@ -79,8 +160,7 @@ file_server = MCPServer("filesystem")  # Process 3
 - Adversaries may abuse inter-process communication (IPC) mechanisms for local code or command execution. (MITRE ATTACK)
    
 #### Recommendations
-- Docker for isolation
-- Apply Resource limits so one server cannot interfere with the whole system of servers
+- Sandboxing (Docker) for isolation, apply resource limits so one server cannot interfere with the whole system of servers
 - Implement Access controls or apply principle of least privilege
 
 ```python
@@ -92,7 +172,6 @@ docker_config = {
     "user": "1000:1000"  # Non-root user
 }
 ```
-
 - Principle of Least Privilege
 ```json
 {
@@ -135,10 +214,11 @@ audit_log = {
 ```
 
 #### Supply Chain and Third-Party Risks
-- Malicious server
-- Dependency issue 
+- Trusted server but having dependency issue 
+
 ```python
-# MCP servers often have complex dependency chains
+# Trusted-MCP servers
+# Server have complex dependency chains
 # package.json or requirements.txt might include:
 dependencies = [
     "vulnerable-library@1.0",  # Known CVE
@@ -149,28 +229,6 @@ dependencies = [
 
 #### There are multiple trust boundaries which need to be considered:
 <<TO-DO>>
-
-SDL provides opportunity to address:
-- Secure communication protocols
-- Input validation at each boundary
-- Proper authentication/authorization
-
-Protocol discovery feature Issue:
-```python
-# Clients discover capabilities at runtime
-available_tools = await client.list_tools()
-available_resources = await client.list_resources()
-
-# Security questions:
-# - Can malicious servers expose dangerous capabilities?
-# - How do we validate tool/resource safety?
-# - What if a server lies about its capabilities?
-```
-
-SDL addresses this through:
-- Trusted Registry for all MCP servers
-- Allowlist/blocklist mechanisms
-- Runtime security monitoring
 
 Communication Threats:
 ```python
@@ -186,12 +244,6 @@ await server.send_notification({
 # - Information disclosure
 # - Social engineering attacks
 ```
-
-SDL mitigates these through:
-- Notification validation
-- Rate limiting
-- Content filtering
-- Client-side security policies
 
 Persistent State Security:
 MCP servers maintain state, creating new attack vectors:
@@ -232,36 +284,6 @@ transports = {
 }
 ```
 
-SDL ensures:
-- Transport-specific security controls
-- Encryption in transit
-- Authentication mechanisms
-- Certificate validation
-
-Third-Party Server Risks
-MCP enables third-party server integration
-```python
-# Third-party MCP servers
-servers = [
-    "github.com/company/weather-mcp",
-    "dropbox.com/drive",
-]
-
-# Security concerns:
-# - Supply chain attacks
-# - Malicious servers
-# - Vulnerable dependencies
-# - Backdoors and trojans
-```
-
-SDL addresses this through:
-- Server validation and signing
-- Dependency scanning
-- Runtime behavior monitoring
-- Sandboxing untrusted servers
-
-Compliance and Auditing
-Requires comprehensive security auditing
 
 ## SDL Implementation Framework for MCP
 
