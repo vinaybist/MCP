@@ -49,13 +49,13 @@ Our approach is to go with the primitives and try to find the potential threats 
 The source of the prompts can be User and Server itself. In other words Prompts can be rovided and controlled by user but for great experience it can also be written in server itself.
 ### Example:
 These are prompts that users input directly into the MCP client (like Claude Desktop):
+#### User types in the client interface
 ```
-# User types in the client interface
 user_prompt = "Analyze the sales data in my database and create a summary report"
 ```
 These are pre-written prompt templates that MCP servers expose as reusable prompts:
+#### Example: MCP server defines prompt templates
 ```
-# Example: MCP server defines prompt templates
 class DataAnalysisMCPServer(MCPServer):
     async def list_prompts(self) -> list[Prompt]:
         return [
@@ -82,11 +82,11 @@ class DataAnalysisMCPServer(MCPServer):
       ----
       ----
 
-# Client discovers available prompts from server
+-Client discovers available prompts from server
 available_prompts = await client.list_prompts()
 # Returns: ["analyze_sales_data", "generate_financial_report", ...]
 
-# User can invoke server-provided prompts with parameters
+-User can invoke server-provided prompts with parameters
 prompt_result = await client.get_prompt(
     "analyze_sales_data",
     arguments={
