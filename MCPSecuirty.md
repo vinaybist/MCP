@@ -75,8 +75,9 @@ file_server = MCPServer("filesystem")  # Process 3
 - Docker for isolation
 - Apply Resource limits so one server cannot interfere the whole system of servers
 - Implement Access controls or apply principle of least privilege
+
   ```
-  # Run MCP servers in containers or sandboxes
+Run MCP servers in containers or sandboxes
 docker_config = {
     "image": "mcp-server:latest",
     "volumes": ["/not-a-root-directory:/data:ro"],  # Read-only mount
@@ -85,8 +86,6 @@ docker_config = {
 }
   ```
 
-
-  ```
 - Principle of Least Privilege
 {
   "mcpServers": {
